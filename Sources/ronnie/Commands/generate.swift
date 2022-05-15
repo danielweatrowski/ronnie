@@ -39,21 +39,14 @@ struct Generate: ParsableCommand {
         let occu = OrangeCountysCU(year: year, month: month, path: path, verbose: verbose)
         occu.loadDataframe()
         
-        var combined = appleCardManager.getDataframe()
+        let acData = appleCardManager.getDataframe()
         let occuData = occu.getDataframe()
-        combined.append(rowsOf: occuData)
         
+        let transactions = Transactions(path: appleCardManager.rootPath)
+        transactions.add(dataframe: acData)
+        transactions.add(dataframe: occuData)
         
-        let rootPath = appleCardManager.rootPath 
-        let filename = "transactions_raw.csv"
-        let url = URL(fileURLWithPath: rootPath + filename)
+        transactions.saveDataframe()
         
-        do {
-            try combined.writeCSV(to: url)
-            print("Successfully generated raw transactions report.")
-            print("File written to \(url.absoluteString)")
-        } catch {
-            print(error.localizedDescription)
-        }
     }
 }

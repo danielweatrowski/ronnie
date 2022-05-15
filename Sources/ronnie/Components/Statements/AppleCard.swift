@@ -9,23 +9,27 @@ import Foundation
 import TabularData
 import SwiftCSV
 
-class AppleCard: StatementLoader {
+class AppleCard: CSVLoader {
     
     var rootPath: String
+    
     var statementFilename: String
+    
     var pathToStatement: String
     
     var dataframe: DataFrame?
     
     var options = CSVReadingOptions()
+    
     var allColumnNames = Columns.allCases.map({ $0.name })
+    
     var allColumnTypes = Columns.allCases.reduce(into: [String: CSVType]()) {
         $0[$1.name] = $1.type
     }
 
     init(year: String, month: String, path: String, verbose: Bool) {
         let activeDirectoryPath = "\(path)/\(year)/\(month)/"
-        let developmentPath = "/Users/danielweatrowski/Documents/Developer/ronnie/\(year)/\(month)/"
+        let  _ = "/Users/danielweatrowski/Documents/Developer/ronnie/\(year)/\(month)/"
         self.rootPath = activeDirectoryPath
         self.statementFilename = "ac_\(year)\(month).csv"
         self.pathToStatement = rootPath + statementFilename
@@ -45,6 +49,9 @@ class AppleCard: StatementLoader {
             let statementURL = URL(fileURLWithPath: pathToStatement)
             let dataframe = try DataFrame(contentsOfCSVFile: statementURL, columns: allColumnNames, types: allColumnTypes, options: options)
             
+            print("Successfully loaded \(name) statement.")
+            print("File loaded from \(statementURL.path)\n")
+            
             self.dataframe = dataframe
             formatDataframe()
         } catch (let error as CSVReadingError) {
@@ -60,9 +67,11 @@ class AppleCard: StatementLoader {
             return
         }
 
-        let nameArray = Array(repeating: "Apple Card", count: originalDataframe.rows.count)
-        let sourceColumn = Column(name: "source", contents: nameArray)
+        // create sorce column
+        let nameArray = Array(repeating: name, count: originalDataframe.rows.count)
+        let sourceColumn = Column(name: Transactions.Columns.source.name, contents: nameArray)
         
+        // extract original data columns
         let dateColumn = originalDataframe[column: Columns.transactionDate.index]
         let descriptionColumn = originalDataframe[column: Columns.description.index]
         let merchantColumn = originalDataframe[column: Columns.merchant.index]
@@ -86,12 +95,12 @@ class AppleCard: StatementLoader {
         let transformedAmountColumn = Column(name: Columns.amount.name, contents: transformedAmounts)
         formattedDataframe.append(column: transformedAmountColumn)
         
-        formattedDataframe.renameColumn(Columns.transactionDate.name, to: "date")
-        formattedDataframe.renameColumn(Columns.merchant.name, to: "merchant")
-        formattedDataframe.renameColumn(Columns.description.name, to: "description")
-        formattedDataframe.renameColumn(Columns.category.name, to: "category")
-        formattedDataframe.renameColumn(Columns.type.name, to: "type")
-        formattedDataframe.renameColumn(Columns.amount.name, to: "amount")
+        formattedDataframe.renameColumn(Columns.transactionDate.name, to: Transactions.Columns.date.name)
+        formattedDataframe.renameColumn(Columns.merchant.name, to: Transactions.Columns.merchant.name)
+        formattedDataframe.renameColumn(Columns.description.name, to: Transactions.Columns.description.name)
+        formattedDataframe.renameColumn(Columns.category.name, to: Transactions.Columns.category.name)
+        formattedDataframe.renameColumn(Columns.type.name, to: Transactions.Columns.type.name)
+        formattedDataframe.renameColumn(Columns.amount.name, to: Transactions.Columns.amount.name)
         
         dataframe = formattedDataframe
     }
@@ -100,7 +109,7 @@ class AppleCard: StatementLoader {
         if let dataframe = dataframe {
             return dataframe
         } else {
-            print("Unable to retreive dataframe from \(AppleCard.name)")
+            print("Unable to retreive dataframe from \(name)")
             return DataFrame()
         }
     }

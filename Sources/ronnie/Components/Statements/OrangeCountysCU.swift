@@ -8,7 +8,7 @@
 import Foundation
 import TabularData
 
-class OrangeCountysCU: StatementLoader {
+class OrangeCountysCU: CSVLoader {
     
     var rootPath: String
     
@@ -28,7 +28,7 @@ class OrangeCountysCU: StatementLoader {
     
     init(year: String, month: String, path: String, verbose: Bool) {
         let activeDirectoryPath = "\(path)/\(year)/\(month)/"
-        let developmentPath = "/Users/danielweatrowski/Documents/Developer/ronnie/\(year)/\(month)/"
+        let _ = "/Users/danielweatrowski/Documents/Developer/ronnie/\(year)/\(month)/"
         self.rootPath = activeDirectoryPath
         self.statementFilename = "occu_\(year)\(month).csv"
         self.pathToStatement = rootPath + statementFilename
@@ -49,10 +49,13 @@ class OrangeCountysCU: StatementLoader {
             let statementURL = URL(fileURLWithPath: pathToStatement)
             let dataframe = try DataFrame(contentsOfCSVFile: statementURL, columns: allColumnNames, types: allColumnTypes, options: options)
             
+            print("Successfully loaded \(name) statement.")
+            print("File loaded from \(statementURL.path)\n")
+            
             self.dataframe = dataframe
             formatDataframe()
         } catch (let error as CSVReadingError) {
-            print("Failed to load \(OrangeCountysCU.name) statement into DataFrame")
+            print("Failed to load \(name) statement into DataFrame")
             print(error.row)
         } catch {
             print("Failed due to unknown error.")
@@ -64,14 +67,14 @@ class OrangeCountysCU: StatementLoader {
             return
         }
 
-        let nameArray = Array(repeating: OrangeCountysCU.name, count: originalDataframe.rows.count)
-        let sourceColumn = Column(name: "source", contents: nameArray)
+        let nameArray = Array(repeating: name, count: originalDataframe.rows.count)
+        let sourceColumn = Column(name: Transactions.Columns.source.name, contents: nameArray)
         
         let merchantArray = Array(repeating: "", count: originalDataframe.rows.count)
-        let merchantColumn = Column(name: "merchant", contents: merchantArray)
+        let merchantColumn = Column(name: Transactions.Columns.merchant.name, contents: merchantArray)
         
         let categoryArray = Array(repeating: "", count: originalDataframe.rows.count)
-        let categoryColumn = Column(name: "category", contents: categoryArray)
+        let categoryColumn = Column(name: Transactions.Columns.category.name, contents: categoryArray)
 
         let dateColumn = originalDataframe[column: Columns.date.index]
         let descriptionColumn = originalDataframe[column: Columns.description.index]
@@ -105,10 +108,10 @@ class OrangeCountysCU: StatementLoader {
         let transformedAmountColumn = Column(name: Columns.amount.name, contents: allAmounts)
         formattedDataframe.append(column: transformedAmountColumn)
         
-        formattedDataframe.renameColumn(Columns.date.name, to: "date")
-        formattedDataframe.renameColumn(Columns.description.name, to: "description")
-        formattedDataframe.renameColumn(Columns.type.name, to: "type")
-        formattedDataframe.renameColumn(Columns.amount.name, to: "amount")
+        formattedDataframe.renameColumn(Columns.date.name, to: Transactions.Columns.date.name)
+        formattedDataframe.renameColumn(Columns.description.name, to: Transactions.Columns.description.name)
+        formattedDataframe.renameColumn(Columns.type.name, to: Transactions.Columns.type.name)
+        formattedDataframe.renameColumn(Columns.amount.name, to: Transactions.Columns.amount.name)
         
         dataframe = formattedDataframe
     }
@@ -117,7 +120,7 @@ class OrangeCountysCU: StatementLoader {
         if let dataframe = dataframe {
             return dataframe
         } else {
-            print("Unable to retreive dataframe from \(OrangeCountysCU.name)")
+            print("Unable to retreive dataframe from \(name)")
             return DataFrame()
         }
     }
