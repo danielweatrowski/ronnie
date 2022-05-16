@@ -8,7 +8,7 @@
 import Foundation
 import TabularData
 
-class Transactions: CSVGenerator {
+class MonthlyTransactionsGenerator: CSVGenerator {
     
     var rootPath: String
     
@@ -27,15 +27,8 @@ class Transactions: CSVGenerator {
         self.dataframe = createEmptyDataframe()
     }
     
-    func saveDataframe() {
-        let fileURL = URL(fileURLWithPath: pathToFile)
-        do {
-            try dataframe.writeCSV(to: fileURL)
-            print("Successfully generated raw transactions report.")
-            print("File written to \(fileURL.path)")
-        } catch {
-            print(error.localizedDescription)
-        }
+    func generate() {
+        save(dataframe, to: pathToFile)
     }
     
     func createEmptyDataframe() -> DataFrame {
@@ -65,7 +58,7 @@ class Transactions: CSVGenerator {
 
 }
 
-extension Transactions {
+extension MonthlyTransactionsGenerator {
     enum Columns: CaseIterable {
         case source
         case date

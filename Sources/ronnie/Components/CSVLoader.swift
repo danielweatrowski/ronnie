@@ -20,10 +20,10 @@ protocol CSVLoader {
     var rootPath: String { get }
     
     /// Filename of the statement to be loaded. Must be consistent across all statement types
-    var statementFilename: String { get }
+    var filename: String { get }
     
     /// Path to the statement to be loaded. Computed value using the `rootPath` and `statementFilename` variables.
-    var pathToStatement: String { get }
+    var pathToFile: String { get }
     
     /// The dataframe object representing the loaded statement.csv file
     var dataframe: DataFrame? { get set }

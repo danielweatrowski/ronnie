@@ -10,6 +10,9 @@ import TabularData
 struct Generate: ParsableCommand {
     
     public static let configuration = CommandConfiguration(abstract: "Generate a financial report for a given month and year")
+    
+    @Argument(help: "The type of report to be generated. Note: transactions report must be generated before any other reports.")
+    private var type: String
      
     @Argument(help: "The month (mm) of the report to be generated.")
     private var month: String
@@ -26,13 +29,16 @@ struct Generate: ParsableCommand {
     init() {}
     
     mutating func run() throws {
-        let date = year + month
-        let reportDate = Date.formatArgument(date)
-        
-        if verbose {
-            print("Creating financial report for \(reportDate)")
+        switch(type) {
+        case "transactions": generateTransactions()
+        case "totals": generateTotals()
+        default:
+            print("Error: unknown report type.")
+            break
         }
-        
+    }
+    
+    private func generateTransactions() {
         let appleCardManager = AppleCard(year: year, month: month, path: path, verbose: verbose)
         appleCardManager.loadDataframe()
         
@@ -42,11 +48,27 @@ struct Generate: ParsableCommand {
         let acData = appleCardManager.getDataframe()
         let occuData = occu.getDataframe()
         
-        let transactions = Transactions(path: appleCardManager.rootPath)
+        let transactions = MonthlyTransactionsGenerator(path: appleCardManager.rootPath)
         transactions.add(dataframe: acData)
         transactions.add(dataframe: occuData)
         
-        transactions.saveDataframe()
+        transactions.generate()
+    }
+    
+    private func generateTotals() {
+        let transactionsLoader = MonthlyTransactionsLoader(year: year, month: month, path: path, verbose: verbose)
+        transactionsLoader.loadDataframe()
         
+        let transactionsDataframe = transactionsLoader.getDataframe()
+                
+        let settingsPath = path + "/settings.json"
+        let settingsLoader = SettingsLoader(path: settingsPath)
+        settingsLoader.load()
+        
+        let settings = settingsLoader.getSettings()
+        
+        let activeDirectoryPath = "\(path)/\(year)/\(month)/"
+        let totalsGenerator = MonthlyTotalsGenerator(path: activeDirectoryPath, transactions: transactionsDataframe, settings: settings)
+        totalsGenerator.generate()
     }
 }
