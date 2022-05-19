@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  MonthlyTransactions.swift
 //  
 //
 //  Created by Daniel Weatrowski on 5/15/22.
@@ -8,8 +8,7 @@
 import Foundation
 import TabularData
 
-class MonthlyTransactionsGenerator: CSVGenerator {
-    
+class MonthlyTransactionsManager: CSVFileManager {
     var rootPath: String
     
     var filename: String
@@ -18,47 +17,26 @@ class MonthlyTransactionsGenerator: CSVGenerator {
     
     var dataframe: DataFrame
     
+    // Generator Init
     init(path: String) {
         self.rootPath = path
-        self.filename = "transactions_raw.csv"
+        self.filename = "transactions_GENERATED.csv"
         self.pathToFile = rootPath + filename
         
         self.dataframe = DataFrame()
         self.dataframe = createEmptyDataframe()
     }
     
-    func generate() {
-        save(dataframe, to: pathToFile)
+    // Load Init
+    init(year: String, month: String, path: String, verbose: Bool) {
+        let activeDirectoryPath = "\(path)/\(year)/\(month)/"
+        self.rootPath = activeDirectoryPath
+        self.filename = "transactions.csv"
+        self.pathToFile = rootPath + filename
+        
+        self.dataframe = DataFrame()
     }
     
-    func createEmptyDataframe() -> DataFrame {
-        var dataframe = DataFrame()
-        let sourceColumn = Column(name: Columns.source.name, contents: [String]())
-        let dateColumn = Column(name: Columns.date.name, contents: [Date]())
-        let merchantColumn = Column(name: Columns.merchant.name, contents: [String]())
-        let descriptionColumn = Column(name: Columns.description.name, contents: [String]())
-        let categoryColumn = Column(name: Columns.category.name, contents: [String]())
-        let typeColumn = Column(name: Columns.type.name, contents: [String]())
-        let amountColumn = Column(name: Columns.amount.name, contents: [Double]())
-        
-        dataframe.append(column: sourceColumn)
-        dataframe.append(column: dateColumn)
-        dataframe.append(column: merchantColumn)
-        dataframe.append(column: descriptionColumn)
-        dataframe.append(column: categoryColumn)
-        dataframe.append(column: typeColumn)
-        dataframe.append(column: amountColumn)
-        
-        return dataframe
-    }
-    
-    func add(dataframe: DataFrame) {
-        self.dataframe.append(dataframe)
-    }
-
-}
-
-extension MonthlyTransactionsGenerator {
     enum Columns: CaseIterable {
         case source
         case date

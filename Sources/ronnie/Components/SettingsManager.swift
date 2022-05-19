@@ -7,7 +7,7 @@
 
 import Foundation
 
-class SettingsLoader {
+class SettingsManager {
     private var path: String
     
     private var filename: String = "settings.json"
@@ -30,6 +30,7 @@ class SettingsLoader {
             
         } catch {
             print("Failed to load settings.json: \(error.localizedDescription)")
+            print("Unable to load from \(categoriesURL.path)")
         }
     }
     
@@ -37,7 +38,7 @@ class SettingsLoader {
         if let settings = settings {
             return settings
         } else {
-            return Settings(categories: [])
+            return Settings(categories: [], banks: [])
         }
     }
 }

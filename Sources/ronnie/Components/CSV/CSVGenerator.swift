@@ -9,20 +9,6 @@ import Foundation
 import TabularData
 
 protocol CSVGenerator {
-    /// Required Columns enum variable for creating columns of the exported transactions file
-    associatedtype Columns: CaseIterable
-    
-    /// Root path of the csv to be generated. This value is passed as an argument along with the `ronnie` command.
-    var rootPath: String { get }
-    
-    /// Filename of the csv to be generated.
-    var filename: String { get }
-    
-    /// Path to the csv to be written to. Computed value using the `rootPath` and `statementFilename` variables.
-    var pathToFile: String { get }
-    
-    /// The dataframe object to be saved as a csv file.
-    var dataframe: DataFrame { get set }
     
     /// Method to generate the csv once all computational logic has been completed. This function should be called when the dataframe file is ready to be written to a csv.
     func generate()

@@ -39,6 +39,13 @@ struct Generate: ParsableCommand {
     }
     
     private func generateTransactions() {
+        let settingsPath = path + "/settings.json"
+        let settingsManager = SettingsManager(path: settingsPath)
+        settingsManager.load()
+        
+        let settings = settingsManager.getSettings()
+        // TODO: Use banks in settings to load statements
+
         let appleCardManager = AppleCard(year: year, month: month, path: path, verbose: verbose)
         appleCardManager.loadDataframe()
         
@@ -48,27 +55,27 @@ struct Generate: ParsableCommand {
         let acData = appleCardManager.getDataframe()
         let occuData = occu.getDataframe()
         
-        let transactions = MonthlyTransactionsGenerator(path: appleCardManager.rootPath)
-        transactions.add(dataframe: acData)
-        transactions.add(dataframe: occuData)
+        let transactionsManager = MonthlyTransactionsManager(path: appleCardManager.rootPath)
+        transactionsManager.add(dataframe: acData)
+        transactionsManager.add(dataframe: occuData)
         
-        transactions.generate()
+        transactionsManager.generate()
     }
     
     private func generateTotals() {
-        let transactionsLoader = MonthlyTransactionsLoader(year: year, month: month, path: path, verbose: verbose)
-        transactionsLoader.loadDataframe()
-        
-        let transactionsDataframe = transactionsLoader.getDataframe()
+        let transactionsManager = MonthlyTransactionsManager(year: year, month: month, path: path, verbose: verbose)
+        transactionsManager.loadDataframe()
+        let transactionsDataframe = transactionsManager.getDataframe()
+
                 
         let settingsPath = path + "/settings.json"
-        let settingsLoader = SettingsLoader(path: settingsPath)
-        settingsLoader.load()
+        let settingsManager = SettingsManager(path: settingsPath)
+        settingsManager.load()
         
-        let settings = settingsLoader.getSettings()
+        let settings = settingsManager.getSettings()
         
         let activeDirectoryPath = "\(path)/\(year)/\(month)/"
-        let totalsGenerator = MonthlyTotalsGenerator(path: activeDirectoryPath, transactions: transactionsDataframe, settings: settings)
+        let totalsGenerator = MonthlyTotalsManager(path: activeDirectoryPath, transactions: transactionsDataframe, settings: settings)
         totalsGenerator.generate()
     }
 }

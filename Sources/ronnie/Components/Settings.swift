@@ -10,4 +10,5 @@ import Foundation
 /// Decoded representation of settings.json in root directory.
 struct Settings: Codable {
     var categories: [String]
+    var banks: [String]
 }

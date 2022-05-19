@@ -16,7 +16,7 @@ class OrangeCountysCU: CSVLoader {
     
     var pathToFile: String
     
-    var options: CSVReadingOptions
+    var options: CSVReadingOptions = CSVReadingOptions()
     
     var dataframe: DataFrame?
     
@@ -26,13 +26,19 @@ class OrangeCountysCU: CSVLoader {
     
     var allColumnNames: [String] = Columns.allCases.map({ $0.name })
     
+    let bank: Bank = .orangeCountysCU
+    
+    init() {
+        self.rootPath = ""
+        self.filename = ""
+        self.pathToFile = rootPath + filename
+    }
+    
     init(year: String, month: String, path: String, verbose: Bool) {
         let activeDirectoryPath = "\(path)/\(year)/\(month)/"
         self.rootPath = activeDirectoryPath
-        self.filename = "occu_\(year)\(month).csv"
+        self.filename = "\(bank.statementNamePrefix)\(year)\(month).csv"
         self.pathToFile = rootPath + filename
-        
-        self.options = CSVReadingOptions()
     }
     
     func addReadingOptions() {
@@ -67,13 +73,13 @@ class OrangeCountysCU: CSVLoader {
         }
 
         let nameArray = Array(repeating: name, count: originalDataframe.rows.count)
-        let sourceColumn = Column(name: MonthlyTransactionsGenerator.Columns.source.name, contents: nameArray)
+        let sourceColumn = Column(name: MonthlyTransactionsManager.Columns.source.name, contents: nameArray)
         
         let merchantArray = Array(repeating: "", count: originalDataframe.rows.count)
-        let merchantColumn = Column(name: MonthlyTransactionsGenerator.Columns.merchant.name, contents: merchantArray)
+        let merchantColumn = Column(name: MonthlyTransactionsManager.Columns.merchant.name, contents: merchantArray)
         
         let categoryArray = Array(repeating: "", count: originalDataframe.rows.count)
-        let categoryColumn = Column(name: MonthlyTransactionsGenerator.Columns.category.name, contents: categoryArray)
+        let categoryColumn = Column(name: MonthlyTransactionsManager.Columns.category.name, contents: categoryArray)
 
         let dateColumn = originalDataframe[column: Columns.date.index]
         let descriptionColumn = originalDataframe[column: Columns.description.index]
@@ -107,10 +113,10 @@ class OrangeCountysCU: CSVLoader {
         let transformedAmountColumn = Column(name: Columns.amount.name, contents: allAmounts)
         formattedDataframe.append(column: transformedAmountColumn)
         
-        formattedDataframe.renameColumn(Columns.date.name, to: MonthlyTransactionsGenerator.Columns.date.name)
-        formattedDataframe.renameColumn(Columns.description.name, to: MonthlyTransactionsGenerator.Columns.description.name)
-        formattedDataframe.renameColumn(Columns.type.name, to: MonthlyTransactionsGenerator.Columns.type.name)
-        formattedDataframe.renameColumn(Columns.amount.name, to: MonthlyTransactionsGenerator.Columns.amount.name)
+        formattedDataframe.renameColumn(Columns.date.name, to: MonthlyTransactionsManager.Columns.date.name)
+        formattedDataframe.renameColumn(Columns.description.name, to: MonthlyTransactionsManager.Columns.description.name)
+        formattedDataframe.renameColumn(Columns.type.name, to: MonthlyTransactionsManager.Columns.type.name)
+        formattedDataframe.renameColumn(Columns.amount.name, to: MonthlyTransactionsManager.Columns.amount.name)
         
         dataframe = formattedDataframe
     }

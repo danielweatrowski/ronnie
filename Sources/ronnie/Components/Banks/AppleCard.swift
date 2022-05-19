@@ -7,7 +7,6 @@
 
 import Foundation
 import TabularData
-import SwiftCSV
 
 class AppleCard: CSVLoader {
     
@@ -26,11 +25,19 @@ class AppleCard: CSVLoader {
     var allColumnTypes = Columns.allCases.reduce(into: [String: CSVType]()) {
         $0[$1.name] = $1.type
     }
+    
+    let bank: Bank = .appleCard
+    
+    init() {
+        self.rootPath = ""
+        self.filename = ""
+        self.pathToFile = rootPath + filename
+    }
 
     init(year: String, month: String, path: String, verbose: Bool) {
         let activeDirectoryPath = "\(path)/\(year)/\(month)/"
         self.rootPath = activeDirectoryPath
-        self.filename = "ac_\(year)\(month).csv"
+        self.filename = "\(bank.statementNamePrefix)\(year)\(month).csv"
         self.pathToFile = rootPath + filename
     }
     
@@ -68,7 +75,7 @@ class AppleCard: CSVLoader {
 
         // create sorce column
         let nameArray = Array(repeating: name, count: originalDataframe.rows.count)
-        let sourceColumn = Column(name: MonthlyTransactionsGenerator.Columns.source.name, contents: nameArray)
+        let sourceColumn = Column(name: MonthlyTransactionsManager.Columns.source.name, contents: nameArray)
         
         // extract original data columns
         let dateColumn = originalDataframe[column: Columns.transactionDate.index]
@@ -94,12 +101,12 @@ class AppleCard: CSVLoader {
         let transformedAmountColumn = Column(name: Columns.amount.name, contents: transformedAmounts)
         formattedDataframe.append(column: transformedAmountColumn)
         
-        formattedDataframe.renameColumn(Columns.transactionDate.name, to: MonthlyTransactionsGenerator.Columns.date.name)
-        formattedDataframe.renameColumn(Columns.merchant.name, to: MonthlyTransactionsGenerator.Columns.merchant.name)
-        formattedDataframe.renameColumn(Columns.description.name, to: MonthlyTransactionsGenerator.Columns.description.name)
-        formattedDataframe.renameColumn(Columns.category.name, to: MonthlyTransactionsGenerator.Columns.category.name)
-        formattedDataframe.renameColumn(Columns.type.name, to: MonthlyTransactionsGenerator.Columns.type.name)
-        formattedDataframe.renameColumn(Columns.amount.name, to: MonthlyTransactionsGenerator.Columns.amount.name)
+        formattedDataframe.renameColumn(Columns.transactionDate.name, to: MonthlyTransactionsManager.Columns.date.name)
+        formattedDataframe.renameColumn(Columns.merchant.name, to: MonthlyTransactionsManager.Columns.merchant.name)
+        formattedDataframe.renameColumn(Columns.description.name, to: MonthlyTransactionsManager.Columns.description.name)
+        formattedDataframe.renameColumn(Columns.category.name, to: MonthlyTransactionsManager.Columns.category.name)
+        formattedDataframe.renameColumn(Columns.type.name, to: MonthlyTransactionsManager.Columns.type.name)
+        formattedDataframe.renameColumn(Columns.amount.name, to: MonthlyTransactionsManager.Columns.amount.name)
         
         dataframe = formattedDataframe
     }
