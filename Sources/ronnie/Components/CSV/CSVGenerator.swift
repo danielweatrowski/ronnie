@@ -13,7 +13,7 @@ protocol CSVGenerator {
     /// Method to generate the csv once all computational logic has been completed. This function should be called when the dataframe file is ready to be written to a csv.
     func generate()
     
-    /// Create a dataframe with the correct column layout with no data. Use this empty dataframe to append other dataframes to
+    /// If the generated CSV file requires a specific format of columns, use this method to create a dataframe with the correct column layout. Use the empty dataframe to append other dataframes
     /// with the expected format.
     func createEmptyDataframe() -> DataFrame
     

@@ -8,18 +8,15 @@
 import Foundation
 import TabularData
 
-class OrangeCountysCU: CSVLoader {
+class OrangeCountysCU: CSVFileManager, CSVLoader {
+    var dataframe: DataFrame
     
     var rootPath: String
     
     var filename: String
-    
-    var pathToFile: String
-    
+        
     var options: CSVReadingOptions = CSVReadingOptions()
-    
-    var dataframe: DataFrame?
-    
+        
     var allColumnTypes: [String : CSVType] = Columns.allCases.reduce(into: [String: CSVType]()) {
         $0[$1.name] = $1.type
     }
@@ -29,16 +26,17 @@ class OrangeCountysCU: CSVLoader {
     let bank: Bank = .orangeCountysCU
     
     init() {
+        self.dataframe = DataFrame()
         self.rootPath = ""
         self.filename = ""
-        self.pathToFile = rootPath + filename
     }
     
     init(year: String, month: String, path: String, verbose: Bool) {
         let activeDirectoryPath = "\(path)/\(year)/\(month)/"
         self.rootPath = activeDirectoryPath
         self.filename = "\(bank.statementNamePrefix)\(year)\(month).csv"
-        self.pathToFile = rootPath + filename
+        
+        self.dataframe = DataFrame()
     }
     
     func addReadingOptions() {
@@ -68,9 +66,7 @@ class OrangeCountysCU: CSVLoader {
     }
     
     func formatDataframe() {
-        guard let originalDataframe = dataframe else {
-            return
-        }
+        let originalDataframe = dataframe
 
         let nameArray = Array(repeating: name, count: originalDataframe.rows.count)
         let sourceColumn = Column(name: MonthlyTransactionsManager.Columns.source.name, contents: nameArray)
@@ -122,12 +118,7 @@ class OrangeCountysCU: CSVLoader {
     }
     
     func getDataframe() -> DataFrame {
-        if let dataframe = dataframe {
-            return dataframe
-        } else {
-            print("Unable to retreive dataframe from \(name)")
-            return DataFrame()
-        }
+        return dataframe
     }
 }
 

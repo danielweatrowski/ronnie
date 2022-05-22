@@ -8,16 +8,17 @@
 import Foundation
 import TabularData
 
-class AppleCard: CSVLoader {
+protocol BankStatement {
+    var bank: Bank { get }
+}
+
+class AppleCard: CSVFileManager, CSVLoader, BankStatement {
+    var dataframe: DataFrame
     
     var rootPath: String
     
     var filename: String
-    
-    var pathToFile: String
-    
-    var dataframe: DataFrame?
-    
+            
     var options = CSVReadingOptions()
     
     var allColumnNames = Columns.allCases.map({ $0.name })
@@ -29,16 +30,17 @@ class AppleCard: CSVLoader {
     let bank: Bank = .appleCard
     
     init() {
+        self.dataframe = DataFrame()
         self.rootPath = ""
         self.filename = ""
-        self.pathToFile = rootPath + filename
     }
 
     init(year: String, month: String, path: String, verbose: Bool) {
         let activeDirectoryPath = "\(path)/\(year)/\(month)/"
         self.rootPath = activeDirectoryPath
         self.filename = "\(bank.statementNamePrefix)\(year)\(month).csv"
-        self.pathToFile = rootPath + filename
+        
+        self.dataframe = DataFrame()
     }
     
     func addReadingOptions() {
@@ -68,11 +70,10 @@ class AppleCard: CSVLoader {
         }
     }
     
+    // Custom logic to convert AppleCard statment columns into generic MonthlyTransaction columns
     func formatDataframe() {
-        guard let originalDataframe = dataframe else {
-            return
-        }
-
+        let originalDataframe = dataframe
+        
         // create sorce column
         let nameArray = Array(repeating: name, count: originalDataframe.rows.count)
         let sourceColumn = Column(name: MonthlyTransactionsManager.Columns.source.name, contents: nameArray)
@@ -112,12 +113,7 @@ class AppleCard: CSVLoader {
     }
     
     func getDataframe() -> DataFrame {
-        if let dataframe = dataframe {
-            return dataframe
-        } else {
-            print("Unable to retreive dataframe from \(name)")
-            return DataFrame()
-        }
+        return dataframe
     }
 }
 extension AppleCard {

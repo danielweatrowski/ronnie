@@ -7,10 +7,20 @@
 
 import Foundation
 
-enum Bank {
+/// Enum representation of all bank statements supported by Ronnie mapped to their associated loader controllers.
+enum Bank: CaseIterable {
     // Add future banks here
     case appleCard
     case orangeCountysCU
+    
+    var friendlyName: String {
+        get {
+            switch(self) {
+            case .appleCard: return "Apple Card"
+            case .orangeCountysCU: return "Orange Countys Credit Union"
+            }
+        }
+    }
     
     var settingsName: String {
         get {

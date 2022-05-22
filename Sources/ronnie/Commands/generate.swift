@@ -39,25 +39,28 @@ struct Generate: ParsableCommand {
     }
     
     private func generateTransactions() {
-        let settingsPath = path + "/settings.json"
-        let settingsManager = SettingsManager(path: settingsPath)
+        let settingsManager = SettingsManager(path: path)
         settingsManager.load()
         
         let settings = settingsManager.getSettings()
-        // TODO: Use banks in settings to load statements
-
-        let appleCardManager = AppleCard(year: year, month: month, path: path, verbose: verbose)
-        appleCardManager.loadDataframe()
         
-        let occu = OrangeCountysCU(year: year, month: month, path: path, verbose: verbose)
-        occu.loadDataframe()
-        
-        let acData = appleCardManager.getDataframe()
-        let occuData = occu.getDataframe()
-        
-        let transactionsManager = MonthlyTransactionsManager(path: appleCardManager.rootPath)
-        transactionsManager.add(dataframe: acData)
-        transactionsManager.add(dataframe: occuData)
+        let monthDirectoryPath = "\(path)/\(year)/\(month)/"
+        let transactionsManager = MonthlyTransactionsManager(path: monthDirectoryPath)
+                
+        for bank in Bank.allCases where settings.banks.contains(bank.settingsName) {
+            switch (bank) {
+            case .appleCard:
+                let appleCardManager = AppleCard(year: year, month: month, path: path, verbose: verbose)
+                appleCardManager.loadDataframe()
+                transactionsManager.add(dataframe: appleCardManager.getDataframe())
+                break
+            case .orangeCountysCU:
+                let occuManager = OrangeCountysCU(year: year, month: month, path: path, verbose: verbose)
+                occuManager.loadDataframe()
+                transactionsManager.add(dataframe: occuManager.getDataframe())
+                break
+            }
+        }
         
         transactionsManager.generate()
     }
@@ -67,9 +70,7 @@ struct Generate: ParsableCommand {
         transactionsManager.loadDataframe()
         let transactionsDataframe = transactionsManager.getDataframe()
 
-                
-        let settingsPath = path + "/settings.json"
-        let settingsManager = SettingsManager(path: settingsPath)
+        let settingsManager = SettingsManager(path: path)
         settingsManager.load()
         
         let settings = settingsManager.getSettings()

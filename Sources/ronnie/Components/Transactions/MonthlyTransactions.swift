@@ -20,7 +20,7 @@ class MonthlyTransactionsManager: CSVFileManager {
     // Generator Init
     init(path: String) {
         self.rootPath = path
-        self.filename = "transactions_GENERATED.csv"
+        self.filename = FileName.transactionsGenerated.rawValue
         self.pathToFile = rootPath + filename
         
         self.dataframe = DataFrame()
@@ -31,7 +31,7 @@ class MonthlyTransactionsManager: CSVFileManager {
     init(year: String, month: String, path: String, verbose: Bool) {
         let activeDirectoryPath = "\(path)/\(year)/\(month)/"
         self.rootPath = activeDirectoryPath
-        self.filename = "transactions.csv"
+        self.filename = FileName.transactions.rawValue
         self.pathToFile = rootPath + filename
         
         self.dataframe = DataFrame()

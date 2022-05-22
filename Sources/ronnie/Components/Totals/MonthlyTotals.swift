@@ -29,7 +29,7 @@ class MonthlyTotalsManager: CSVFileManager {
         self.settings = settings
         
         self.rootPath = path
-        self.filename = "totals.csv"
+        self.filename = FileName.totals.rawValue
         self.pathToFile = rootPath + filename
         
         self.dataframe = DataFrame()

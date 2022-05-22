@@ -24,3 +24,9 @@ protocol CSVFileManager {
     /// The dataframe object to be saved as a csv file.
     var dataframe: DataFrame { get set }
 }
+
+extension CSVFileManager {
+    var pathToFile: String {
+        return rootPath + filename
+    }
+}

@@ -7,6 +7,7 @@
 
 import Foundation
 import TabularData
+import CloudKit
 
 /// Loader protocol for loading various bank statements (in CSV format) into the program using the `TabularData` framework.
 protocol CSVLoader {
