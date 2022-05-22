@@ -10,7 +10,7 @@ import ArgumentParser
 struct Ronnie: ParsableCommand {
     static let configuration = CommandConfiguration(
         abstract: "A Swift command-line tool to assistance with all financial needs.",
-        subcommands: [Generate.self, View.self])
+        subcommands: [Generate.self, View.self, Init.self])
 
     init() { }
 }

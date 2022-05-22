@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  Date.swift
 //  
 //
 //  Created by Daniel Weatrowski on 5/2/22.
@@ -8,21 +8,15 @@
 import Foundation
 
 extension Date {
-    func getFormattedDate(format: String) -> String {
-         let dateformat = DateFormatter()
-         dateformat.dateFormat = format
-         return dateformat.string(from: self)
-     }
-    
-    static func formatArgument(_ dateString: String) -> String {
+    static func getCurrentYear() -> String {
+        let date = Date()
         let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyyMM"
-        
-        if let reportDate = dateFormatter.date(from: dateString) {
-            let formattedDate = reportDate.getFormattedDate(format: "MMMM yyy")
-            return formattedDate
-        } else {
-            return "nil"
-        }
+        dateFormatter.dateFormat = "yyyy"
+        let yearString = dateFormatter.string(from: date)
+        return yearString
+    }
+    
+    static func getMonths() -> [String] {
+        return ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"]
     }
 }
