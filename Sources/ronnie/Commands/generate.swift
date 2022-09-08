@@ -45,17 +45,20 @@ struct Generate: ParsableCommand {
         let settings = settingsManager.getSettings()
         
         let monthDirectoryPath = "\(path)/\(year)/\(month)/"
-        let transactionsManager = MonthlyTransactionsManager(path: monthDirectoryPath)
+        let monthDirectoryURL = URL(fileURLWithPath: monthDirectoryPath)
+        let transactionsManager = MonthlyTransactionsManager(directoryURL: monthDirectoryURL)
                 
         for bank in Bank.allCases where settings.banks.contains(bank.settingsName) {
             switch (bank) {
             case .appleCard:
-                let appleCardManager = AppleCard(year: year, month: month, path: path, verbose: verbose)
+                let statementName = "\(Bank.appleCard.statementNamePrefix)\(year)\(month).csv"
+                let appleCardManager = AppleCard(directoryURL: monthDirectoryURL, filename: statementName)
                 appleCardManager.loadDataframe()
                 transactionsManager.add(dataframe: appleCardManager.getDataframe())
                 break
             case .orangeCountysCU:
-                let occuManager = OrangeCountysCU(year: year, month: month, path: path, verbose: verbose)
+                let statementName = "\(Bank.orangeCountysCU.statementNamePrefix)\(year)\(month).csv"
+                let occuManager = OrangeCountysCU(directoryURL: monthDirectoryURL, filename: statementName)
                 occuManager.loadDataframe()
                 transactionsManager.add(dataframe: occuManager.getDataframe())
                 break
@@ -66,7 +69,10 @@ struct Generate: ParsableCommand {
     }
     
     private func generateTotals() {
-        let transactionsManager = MonthlyTransactionsManager(year: year, month: month, path: path, verbose: verbose)
+        let monthDirectoryPath = "\(path)/\(year)/\(month)/"
+        let monthDirectoryURL = URL(fileURLWithPath: monthDirectoryPath)
+
+        let transactionsManager = MonthlyTransactionsManager(year: year, month: month, directoryURL: monthDirectoryURL, verbose: verbose)
         transactionsManager.loadDataframe()
         let transactionsDataframe = transactionsManager.getDataframe()
 
@@ -75,8 +81,7 @@ struct Generate: ParsableCommand {
         
         let settings = settingsManager.getSettings()
         
-        let activeDirectoryPath = "\(path)/\(year)/\(month)/"
-        let totalsGenerator = MonthlyTotalsManager(path: activeDirectoryPath, transactions: transactionsDataframe, settings: settings)
+        let totalsGenerator = MonthlyTotalsManager(directoryURL: monthDirectoryURL, transactions: transactionsDataframe, settings: settings)
         totalsGenerator.generate()
     }
 }

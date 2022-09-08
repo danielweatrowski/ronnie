@@ -8,57 +8,50 @@
 import Foundation
 import TabularData
 
-protocol BankStatement {
-    var bank: Bank { get }
-}
-
-class AppleCard: CSVFileManager, CSVLoader, BankStatement {
+class AppleCard: CSVFileManager, CSVLoader {
     var dataframe: DataFrame
-    
-    var rootPath: String
-    
+    var directoryURL: URL
     var filename: String
             
-    var options = CSVReadingOptions()
+    var options: CSVReadingOptions {
+        var options = CSVReadingOptions()
+        options.addDateParseStrategy(
+            Date.ParseStrategy(format: "\(month: .twoDigits)/\(day: .twoDigits)/\(year: .defaultDigits)",
+                               timeZone: .current)
+        )
+        return options
+    }
     
-    var allColumnNames = Columns.allCases.map({ $0.name })
+    var allColumnTypes: [String : CSVType] {
+       return Columns.allCases.reduce(into: [String: CSVType]()) {
+           $0[$1.name] = $1.type
+       }
+    }
     
-    var allColumnTypes = Columns.allCases.reduce(into: [String: CSVType]()) {
-        $0[$1.name] = $1.type
+    var allColumnNames: [String] {
+        return Columns.allCases.map({ $0.name })
     }
     
     let bank: Bank = .appleCard
     
     init() {
         self.dataframe = DataFrame()
-        self.rootPath = ""
+        self.directoryURL = URL(fileURLWithPath: ".")
         self.filename = ""
     }
-
-    init(year: String, month: String, path: String, verbose: Bool) {
-        let activeDirectoryPath = "\(path)/\(year)/\(month)/"
-        self.rootPath = activeDirectoryPath
-        self.filename = "\(bank.statementNamePrefix)\(year)\(month).csv"
-        
-        self.dataframe = DataFrame()
-    }
     
-    func addReadingOptions() {
-        options.addDateParseStrategy(
-            Date.ParseStrategy(format: "\(month: .twoDigits)/\(day: .twoDigits)/\(year: .defaultDigits)",
-                               timeZone: .current)
-        )
+    required init(directoryURL: URL, filename: String) {
+        self.directoryURL = directoryURL
+        self.filename = filename
+        self.dataframe = DataFrame()
     }
 
     func loadDataframe() {
-        addReadingOptions()
-
         do {
-            let statementURL = URL(fileURLWithPath: pathToFile)
-            let dataframe = try DataFrame(contentsOfCSVFile: statementURL, columns: allColumnNames, types: allColumnTypes, options: options)
+            let dataframe = try DataFrame(contentsOfCSVFile: fileURL, columns: allColumnNames, types: allColumnTypes, options: options)
             
-            print("Successfully loaded \(name) statement.")
-            print("File loaded from \(statementURL.path)\n")
+            print("Successfully loaded \(bank.friendlyName) statement.")
+            print("File loaded from \(fileURL.path)\n")
             
             self.dataframe = dataframe
             formatDataframe()

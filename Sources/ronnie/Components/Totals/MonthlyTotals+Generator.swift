@@ -43,7 +43,8 @@ extension MonthlyTotalsManager: CSVGenerator {
             allCategories.append(category)
             allAmounts.append(totalAmount)
             
-            save(categoryDataframe, to: rootPath + "categories/" + category + ".csv")
+            let categoriesDirectory = directoryURL.appendingPathComponent("categories", isDirectory: true)
+            save(categoryDataframe, to: categoriesDirectory.appendingPathComponent("\(category).csv"))
         }
         
         var categoryTotalsDataframe = DataFrame()
@@ -54,7 +55,9 @@ extension MonthlyTotalsManager: CSVGenerator {
         categoryTotalsDataframe.append(column: amountColumn)
         
         self.dataframe = categoryTotalsDataframe
-        save(categoryTotalsDataframe, to: rootPath + "categories/" + filename)
+        let categoriesDirectory = directoryURL.appendingPathComponent("categories", isDirectory: true)
+        
+        save(categoryTotalsDataframe, to: categoriesDirectory.appendingPathComponent(filename))
     }
     
     private func generateAllTotals(for transactions: DataFrame) {
@@ -72,7 +75,8 @@ extension MonthlyTotalsManager: CSVGenerator {
         totalsDataframe.append(column: categoriesColumn)
         totalsDataframe.append(column: totalAmountsColumn)
         
-        save(totalsDataframe, to: rootPath + filename)
+        // TODO: Save dataframe
+        save(totalsDataframe, to: directoryURL.appendingPathComponent(filename))
     }
 }
 

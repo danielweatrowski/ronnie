@@ -9,12 +9,10 @@ import Foundation
 import TabularData
 
 class MonthlyTotalsManager: CSVFileManager {
-    var rootPath: String
+    var directoryURL: URL
     
     var filename: String
-    
-    var pathToFile: String
-    
+        
     var dataframe: DataFrame
     
     var transactionsDataframe: DataFrame?
@@ -24,29 +22,25 @@ class MonthlyTotalsManager: CSVFileManager {
     internal var totalEarnings: Double = 0
     
     /// Use this initializer when generating new totals
-    init(path: String, transactions: DataFrame, settings: Settings) {
+    init(directoryURL: URL, transactions: DataFrame, settings: Settings) {
         self.transactionsDataframe = transactions
         self.settings = settings
         
-        self.rootPath = path
+        self.directoryURL = directoryURL
         self.filename = FileName.totals.rawValue
-        self.pathToFile = rootPath + filename
         
         self.dataframe = DataFrame()
         self.dataframe = createEmptyDataframe()
         
         // Create the /categories directory if it does not exist. The category files will be saved here.
-        createDirectoryIfNeeded(path: rootPath, directoryName: "categories")
+        FileManager.default.createDirectoryIfNeeded(at: directoryURL, directoryName: "categories")
     }
     
     /// Use this initializer when loading prexisting totals
-    init(path: String, filename: String) {
-        self.pathToFile = path
+    required init(directoryURL: URL, filename: String) {
         self.filename = filename
         self.dataframe = DataFrame()
-        
-        // unused
-        self.rootPath = ""
+        self.directoryURL = directoryURL
     }
     
     enum Columns: CaseIterable {

@@ -17,36 +17,21 @@ protocol CSVGenerator {
     /// with the expected format.
     func createEmptyDataframe() -> DataFrame
     
-    /// Generic save method to write dataframe to csv at some path
-    func save(_ dataframe: DataFrame, to path: String)
-    
-    /// Generic method to create new directory if it does not already exist
-    func createDirectoryIfNeeded(path: String, directoryName: String)
+    /// Generic save method to write dataframe to csv
+    /// - Parameters:
+    ///     - dataframe: Dataframe to be written
+    ///     - url: URL of the directory to save the dataframe
+    func save(_ dataframe: DataFrame, to url: URL)
 }
 
 extension CSVGenerator {
-    func save(_ dataframe: DataFrame, to path: String) {
-        let fileURL = URL(fileURLWithPath: path)
+    func save(_ dataframe: DataFrame, to url: URL) {
         do {
-            try dataframe.writeCSV(to: fileURL)
+            try dataframe.writeCSV(to: url)
             print("Successfully saved csv file.")
-            print("File written to \(fileURL.path)")
+            print("File written to \(url.path)")
         } catch {
             print(error.localizedDescription)
-        }
-    }
-    
-    func createDirectoryIfNeeded(path: String, directoryName: String) {
-        let directoryURL = URL(fileURLWithPath: path).appendingPathComponent(directoryName)
-        if !FileManager.default.fileExists(atPath: directoryURL.path) {
-            do {
-                try FileManager.default.createDirectory(atPath: directoryURL.path, withIntermediateDirectories: true, attributes: nil)
-                print("Successfully created \(directoryName) directory")
-                print("Directory is located at \(directoryURL.path)")
-            } catch {
-                print("Error: Failed to created categories directory")
-                print(error.localizedDescription)
-            }
         }
     }
 }

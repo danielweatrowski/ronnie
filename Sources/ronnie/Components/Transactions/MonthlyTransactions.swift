@@ -9,30 +9,32 @@ import Foundation
 import TabularData
 
 class MonthlyTransactionsManager: CSVFileManager {
-    var rootPath: String
+    var directoryURL: URL
     
     var filename: String
-    
-    var pathToFile: String
-    
+        
     var dataframe: DataFrame
     
     // Generator Init
-    init(path: String) {
-        self.rootPath = path
+    init(directoryURL: URL) {
+        self.directoryURL = directoryURL
         self.filename = FileName.transactionsGenerated.rawValue
-        self.pathToFile = rootPath + filename
         
         self.dataframe = DataFrame()
         self.dataframe = createEmptyDataframe()
     }
     
+    required init(directoryURL: URL, filename: String) {
+        self.filename = filename
+        self.dataframe = DataFrame()
+        self.directoryURL = directoryURL
+    }
+    
     // Load Init
-    init(year: String, month: String, path: String, verbose: Bool) {
-        let activeDirectoryPath = "\(path)/\(year)/\(month)/"
-        self.rootPath = activeDirectoryPath
+    init(year: String, month: String, directoryURL: URL, verbose: Bool) {
+        //let activeDirectoryPath = "\(path)/\(year)/\(month)/"
+        self.directoryURL = directoryURL
         self.filename = FileName.transactions.rawValue
-        self.pathToFile = rootPath + filename
         
         self.dataframe = DataFrame()
     }

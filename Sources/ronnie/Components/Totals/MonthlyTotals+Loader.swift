@@ -25,7 +25,7 @@ extension MonthlyTotalsManager: CSVLoader {
     }
     
     func loadDataframe() {
-        dataframe = loadDataframe(at: pathToFile)
+        dataframe = loadDataframe(at: fileURL)
     }
     
     func getDataframe() -> DataFrame {

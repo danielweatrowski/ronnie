@@ -10,7 +10,7 @@ import TabularData
 
 extension MonthlyTransactionsManager: CSVGenerator {
     func generate() {
-        save(dataframe, to: pathToFile)
+        save(dataframe, to: fileURL)
     }
     
     func createEmptyDataframe() -> DataFrame {

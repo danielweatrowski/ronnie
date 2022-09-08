@@ -9,7 +9,7 @@ import Foundation
 import TabularData
 import CloudKit
 
-/// Loader protocol for loading various bank statements (in CSV format) into the program using the `TabularData` framework.
+/// Methods and variables for loading csv files into the program using the `TabularData` framework.
 protocol CSVLoader {
     /// Name of the statement loader
     var name: String { get }
@@ -23,17 +23,13 @@ protocol CSVLoader {
     /// All column names in the csv statement, calculated from the `Columns` enum
     var allColumnNames: [String] { get }
     
-    /// Add any required reading options to the loader. This will most likely need to be implemented for reading bank statement csv files, as each statemen formatt is often
-    /// unique to it's bank.
-    func addReadingOptions()
-    
     /// Method to load the statement csv into the program as a dataframe. This method will mostly be the same between different loaders,
     /// as it uses the month, year, and path parameters to simply load the csv into a datafram object.
     ///
     /// - Note: The statement filename must be updated accordingly for each loader.
     func loadDataframe()
     
-    func loadDataframe(at path: String) -> DataFrame
+    func loadDataframe(at url: URL) -> DataFrame
     
     /// Method to format the loaded statement dataframe into the required output dataframe format. This method will often be unique between loaders,
     /// as the format of each statement csv file will differ greatly.  The formatted dataframe, however, needs to be the same between all loaders in order
@@ -43,6 +39,9 @@ protocol CSVLoader {
     /// Method used to retrieve the loaded dataframe from the loader.
     func getDataframe() -> DataFrame
     
+    /// Required initializer
+    init(directoryURL: URL, filename: String)
+    
 }
 
 extension CSVLoader {
@@ -50,14 +49,13 @@ extension CSVLoader {
         return String(describing: self)
     }
     
-    func loadDataframe(at pathToFile: String) -> DataFrame {
+    func loadDataframe(at url: URL) -> DataFrame {
         var dataframe = DataFrame()
         do {
-            let fileURL = URL(fileURLWithPath: pathToFile)
-            dataframe = try DataFrame(contentsOfCSVFile: fileURL, columns: allColumnNames, types: allColumnTypes, options: options)
+            dataframe = try DataFrame(contentsOfCSVFile: url, columns: allColumnNames, types: allColumnTypes, options: options)
             
             print("Successfully loaded \(name) statement.")
-            print("File loaded from \(fileURL.path)")
+            print("File loaded from \(url.path)")
             
         } catch (let error as CSVReadingError) {
             print("Failed to load \(name) statement into DataFrame")
@@ -70,5 +68,4 @@ extension CSVLoader {
     }
     
     func formatDataframe() {}
-    func addReadingOptions() {}
 }

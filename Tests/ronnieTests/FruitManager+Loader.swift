@@ -1,14 +1,15 @@
 //
-//  MonthlyTransactions+Loader.swift
+//  File.swift
 //  
 //
-//  Created by Daniel Weatrowski on 5/19/22.
+//  Created by Daniel Weatrowski on 5/24/22.
 //
 
 import Foundation
 import TabularData
+@testable import ronnie
 
-extension MonthlyTransactionsManager: CSVLoader {
+extension FruitManager: CSVLoader {
     
     var options: CSVReadingOptions {
         return CSVReadingOptions()
@@ -25,7 +26,7 @@ extension MonthlyTransactionsManager: CSVLoader {
     }
     
     func loadDataframe() {
-        self.dataframe = loadDataframe(at: fileURL)
+        dataframe = loadDataframe(at: fileURL)
     }
     
     func getDataframe() -> DataFrame {

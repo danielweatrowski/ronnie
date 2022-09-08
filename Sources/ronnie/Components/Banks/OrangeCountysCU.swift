@@ -11,11 +11,18 @@ import TabularData
 class OrangeCountysCU: CSVFileManager, CSVLoader {
     var dataframe: DataFrame
     
-    var rootPath: String
+    var directoryURL: URL
     
     var filename: String
         
-    var options: CSVReadingOptions = CSVReadingOptions()
+    var options: CSVReadingOptions {
+        var options = CSVReadingOptions()
+        options.addDateParseStrategy(
+            Date.ParseStrategy(format: "\(month: .twoDigits)/\(day: .twoDigits)/\(year: .defaultDigits) \(hour: .twoDigits(clock: .twentyFourHour, hourCycle: .zeroBased)):\(minute: .twoDigits):\(second: .twoDigits)",
+                               timeZone: .current)
+        )
+        return options
+    }
         
     var allColumnTypes: [String : CSVType] = Columns.allCases.reduce(into: [String: CSVType]()) {
         $0[$1.name] = $1.type
@@ -27,38 +34,27 @@ class OrangeCountysCU: CSVFileManager, CSVLoader {
     
     init() {
         self.dataframe = DataFrame()
-        self.rootPath = ""
+        self.directoryURL = URL(fileURLWithPath: ".")
         self.filename = ""
     }
     
-    init(year: String, month: String, path: String, verbose: Bool) {
-        let activeDirectoryPath = "\(path)/\(year)/\(month)/"
-        self.rootPath = activeDirectoryPath
-        self.filename = "\(bank.statementNamePrefix)\(year)\(month).csv"
-        
+    required init(directoryURL: URL, filename: String) {
+        self.directoryURL = directoryURL
+        self.filename = filename
         self.dataframe = DataFrame()
     }
     
-    func addReadingOptions() {
-        options.addDateParseStrategy(
-            Date.ParseStrategy(format: "\(month: .twoDigits)/\(day: .twoDigits)/\(year: .defaultDigits) \(hour: .twoDigits(clock: .twentyFourHour, hourCycle: .zeroBased)):\(minute: .twoDigits):\(second: .twoDigits)",
-                               timeZone: .current)
-        )
-    }
-    
     func loadDataframe() {
-        addReadingOptions()
         do {
-            let statementURL = URL(fileURLWithPath: pathToFile)
-            let dataframe = try DataFrame(contentsOfCSVFile: statementURL, columns: allColumnNames, types: allColumnTypes, options: options)
+            let dataframe = try DataFrame(contentsOfCSVFile: fileURL, columns: allColumnNames, types: allColumnTypes, options: options)
             
-            print("Successfully loaded \(name) statement.")
-            print("File loaded from \(statementURL.path)\n")
+            print("Successfully loaded \(bank.friendlyName) statement.")
+            print("File loaded from \(fileURL.path)\n")
             
             self.dataframe = dataframe
             formatDataframe()
         } catch (let error as CSVReadingError) {
-            print("Failed to load \(name) statement into DataFrame")
+            print("Failed to load \(bank.friendlyName) statement into DataFrame")
             print(error.row)
         } catch {
             print("Failed due to unknown error.")

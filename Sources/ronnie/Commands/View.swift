@@ -8,10 +8,6 @@
 import Foundation
 import ArgumentParser
 
-enum CSVFileName: String {
-    case totals
-}
-
 struct View: ParsableCommand {
     public static let configuration = CommandConfiguration(abstract: "View a generated financial report csv file")
     
@@ -25,10 +21,11 @@ struct View: ParsableCommand {
     
     mutating func run() throws {
         let filename = (path as NSString).lastPathComponent
-        
+        let directoryURL = URL(fileURLWithPath: path).deletingLastPathComponent()
+        // TODO: TEST
         switch(filename) {
         case "totals.csv":
-            let totals = MonthlyTotalsManager(path: path, filename: filename)
+            let totals = MonthlyTotalsManager(directoryURL: directoryURL, filename: filename)
             totals.loadDataframe()
             
             if pretty {
@@ -37,7 +34,7 @@ struct View: ParsableCommand {
                 totals.view()
             }
         default:
-            let viewer = Viewer(path: path)
+            let viewer = Viewer(fileURL: URL(fileURLWithPath: path))
             viewer.view()
         }
         
